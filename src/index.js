@@ -25,7 +25,7 @@ const templates = {
 }
 
 const rootEl = document.querySelector('.root')
-drawLoginForm()
+
 function drawLoginForm(){
 // 1. 템플릿 복사
 const fragment = document.importNode(templates.loginForm, true)
@@ -56,6 +56,7 @@ drawTodoList()
 rootEl.textContent = ''
 rootEl.appendChild(fragment)
 }
+drawLoginForm()
 
 
 async function drawTodoList (){
@@ -68,30 +69,49 @@ async function drawTodoList (){
   const todoListEl = fragment.querySelector('.todo-list')
   const todoFormEl = fragment.querySelector('.todo-form')
 
+
   todoFormEl.addEventListener('submit', async e => {
     e.preventDefault()
-    const body = e.target.elements.body.value
+    const body = e.target.elements.body.value;
     const res = await api.post('/todos', {
       body,
       complete: false
     })
-    if(res.status === 201){
       drawTodoList()
-    }
   })
 
-  list.forEach(todoItem => {
+  list.forEach(todoItem  => {
     //1. 템플릿 복사
     const fragment = document.importNode(templates.todoItem, true)
     //2. 내용채우고 이벤트 리스너 등록
     const bodyEl = fragment.querySelector('.body')
 
+    const deleteEl = fragment.querySelector('.delete')
+
     bodyEl.textContent = todoItem.body
     //3. 문서 내부에 삽입하기
     todoListEl.appendChild(fragment)
 
+    //삭제
+    deleteEl.addEventListener('click', async e => {
+      console.log('a')
+      // e.preventDefault()
+
+      const body = e.target.elements.body.value;
+      const res = await api.delete('/todos', {
+        body,
+        complete: false
+      })
+        drawTodoList()
+
+
+    })
+
+    // todoListEl.removeChild(fragment)
+
   })
   //3. 문서 내부에 삽입하기
+  rootEl.textContent = '';
   rootEl.appendChild(fragment)
 
 }
