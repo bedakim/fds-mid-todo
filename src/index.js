@@ -25,7 +25,7 @@ const templates = {
 }
 
 const rootEl = document.querySelector('.root')
-
+drawLoginForm()
 function drawLoginForm(){
 // 1. 템플릿 복사
 const fragment = document.importNode(templates.loginForm, true)
@@ -46,37 +46,39 @@ const res = await api.post('/users/login', {
   password: password
 })
 localStorage.setItem('token', res.data.token)
-//임시 테스트 코드
-const res2 = await api.get('/todos')
-alert(JSON.stringify(res2.data))
+
+drawTodoList()
 
 })
 
 //3. 문서 내부에 삽입하기
 
+rootEl.textContent = ''
 rootEl.appendChild(fragment)
 }
 
 
 async function drawTodoList (){
-  const list = [
-    {
-      id: 1,
-      userId: 2,
-      body: 'React 공부',
-      complete:false
-    },
-    {
-      id: 2,
-      userId: 2,
-      body: 'React Router 공부',
-      complete:false
-    }
-  ]
+  const res =  await api.get('/todos')
+  const list = res.data
+
   //1. 템플릿 복사
   const fragment = document.importNode(templates.todoList, true)
   //2. 내용채우고 이벤트 리스너 등록
   const todoListEl = fragment.querySelector('.todo-list')
+  const todoFormEl = fragment.querySelector('.todo-form')
+
+  todoFormEl.addEventListener('submit', async e => {
+    e.preventDefault()
+    const body = e.target.elements.body.value
+    const res = await api.post('/todos', {
+      body,
+      complete: false
+    })
+    if(res.status === 201){
+      drawTodoList()
+    }
+  })
 
   list.forEach(todoItem => {
     //1. 템플릿 복사
@@ -93,7 +95,5 @@ async function drawTodoList (){
   rootEl.appendChild(fragment)
 
 }
-
-
 
 drawTodoList()
