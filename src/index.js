@@ -4,11 +4,23 @@ import axios from 'axios'
 
 const api = axios.create({
   baseURL: 'https://statuesque-slicer.glitch.me/'
+
 })
 
+api.interceptors.request.use(function (config) {
+  // localStorage에 token이 있으면 요청에 헤더 설정, 없으면 아무것도 하지 않음
+  const token = localStorage.getItem('token')
+  if (token) {
+    config.headers = config.headers || {}
+    config.headers['Authorization'] = 'Bearer ' + token
+  }
+  return config
+ });
 
 const templates = {
-  loginForm: document.querySelector('#login-form').content
+  loginForm: document.querySelector('#login-form').content,
+  todoList: document.querySelector('#todo-list').content,
+  todoItem: document.querySelector('#todo-item').content
 
 }
 
@@ -33,7 +45,11 @@ const res = await api.post('/users/login', {
   username: username,
   password: password
 })
-alert(res.data.token)
+localStorage.setItem('token', res.data.token)
+//임시 테스트 코드
+const res2 = await api.get('/todos')
+alert(JSON.stringify(res2.data))
+
 })
 
 //3. 문서 내부에 삽입하기
@@ -41,4 +57,43 @@ alert(res.data.token)
 rootEl.appendChild(fragment)
 }
 
-drawLoginForm()
+
+async function drawTodoList (){
+  const list = [
+    {
+      id: 1,
+      userId: 2,
+      body: 'React 공부',
+      complete:false
+    },
+    {
+      id: 2,
+      userId: 2,
+      body: 'React Router 공부',
+      complete:false
+    }
+  ]
+  //1. 템플릿 복사
+  const fragment = document.importNode(templates.todoList, true)
+  //2. 내용채우고 이벤트 리스너 등록
+  const todoListEl = fragment.querySelector('.todo-list')
+
+  list.forEach(todoItem => {
+    //1. 템플릿 복사
+    const fragment = document.importNode(templates.todoItem, true)
+    //2. 내용채우고 이벤트 리스너 등록
+    const bodyEl = fragment.querySelector('.body')
+
+    bodyEl.textContent = todoItem.body
+    //3. 문서 내부에 삽입하기
+    todoListEl.appendChild(fragment)
+
+  })
+  //3. 문서 내부에 삽입하기
+  rootEl.appendChild(fragment)
+
+}
+
+
+
+drawTodoList()
