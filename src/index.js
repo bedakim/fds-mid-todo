@@ -70,6 +70,9 @@ async function drawTodoList (){
   const todoFormEl = fragment.querySelector('.todo-form')
   const logoutEl = fragment.querySelector('.logout')
 
+
+
+
   logoutEl.addEventListener('click', e =>{
     //로그아웃 절차
     //1.토큰 삭제
@@ -94,6 +97,21 @@ async function drawTodoList (){
     const fragment = document.importNode(templates.todoItem, true)
     //2. 내용채우고 이벤트 리스너 등록
     const bodyEl = fragment.querySelector('.body')
+    const checkBoxEl = fragment.querySelector('.complete')
+
+    if(todoItem.complete){
+      checkBoxEl.setAttribute('checked','')
+    }
+
+
+  checkBoxEl.addEventListener('click', async e => {
+    e.preventDefault()
+    //패치요청
+    await api.patch('/todos/' + todoItem.id, {
+      complete: !todoItem.complete
+    })
+    drawTodoList()
+  })
 
 
     // const todoItemEl = fragment.querySelector('.todo-item')
