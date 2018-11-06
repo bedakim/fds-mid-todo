@@ -68,7 +68,16 @@ async function drawTodoList (){
   //2. 내용채우고 이벤트 리스너 등록
   const todoListEl = fragment.querySelector('.todo-list')
   const todoFormEl = fragment.querySelector('.todo-form')
+  const logoutEl = fragment.querySelector('.logout')
 
+  logoutEl.addEventListener('click', e =>{
+    //로그아웃 절차
+    //1.토큰 삭제
+    localStorage.removeItem('token')
+    //2. 로그인 폼 보여주기
+    drawLoginForm()
+
+  })
 
   todoFormEl.addEventListener('submit', async e => {
     e.preventDefault()
@@ -86,34 +95,31 @@ async function drawTodoList (){
     //2. 내용채우고 이벤트 리스너 등록
     const bodyEl = fragment.querySelector('.body')
 
-    const deleteEl = fragment.querySelector('.delete')
 
+    // const todoItemEl = fragment.querySelector('.todo-item')
     bodyEl.textContent = todoItem.body
-    //3. 문서 내부에 삽입하기
-    todoListEl.appendChild(fragment)
 
     //삭제
+    const deleteEl = fragment.querySelector('.delete')
     deleteEl.addEventListener('click', async e => {
-      console.log('a')
-      // e.preventDefault()
-
-      const body = e.target.elements.body.value;
-      const res = await api.delete('/todos', {
-        body,
-        complete: false
-      })
-        drawTodoList()
-
-
+     await api.delete('/todos/' + todoItem.id)
+     drawTodoList()
     })
 
-    // todoListEl.removeChild(fragment)
+  //3. 문서 내부에 삽입하기
+  todoListEl.appendChild(fragment)
 
   })
+
   //3. 문서 내부에 삽입하기
   rootEl.textContent = '';
   rootEl.appendChild(fragment)
-
 }
 
-drawTodoList()
+if (localStorage.getItem('token')){
+  drawTodoList()
+}else{
+  drawLoginForm()
+}
+
+
